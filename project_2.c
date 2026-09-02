@@ -9,6 +9,12 @@ uint32_t fake_hardware_registers[3]  ;
 
 
 
+
+
+
+
+
+
 // first set the bit 0 of the register direction next make it out 
 
 //func that cheks direction and later checks if output 
@@ -26,7 +32,7 @@ int is_output = (*direction_reg >> pin ) & 1 ;    /// use pin to check ,,
 if (!is_output)
 {
   printf(" this direction_reg is not set\n ");
-  return ;
+
 }
 
 // if user reuqeseted for pin =3 and value =1 it means he neee pin 3 to be high , we use this operation & up set the bit after checking the direction register thats it  
@@ -38,6 +44,32 @@ if (value) {
 
 
 }
+
+int gpio_read(volatile uint32_t *direction_reg,
+                 volatile uint32_t *input_reg,
+                 int pin)
+{ 
+
+
+int is_input = (*direction_reg >> pin ) & 1 ;    /// use pin to check ,,
+
+if (!is_input)
+{
+  printf(" this direction_reg is set for read \n ");
+  
+}
+else 
+{
+  printf(" this direction_reg is not set for read \n");
+  return -1 ; 
+}
+  int pin_status = (*input_reg >> pin) & 1;
+  return pin_status;
+
+
+
+}
+
 
 int main()
 {
@@ -69,9 +101,20 @@ printf("%d\n",pin1_status);
 
 
 gpio_write( direction_reg, output_reg, 0, 1) ;
-printf("output register status after direction check 0x%08X\n",*output_reg) ; 
+printf("output register status after direction check 0x%08X\n",*output_reg) ;   // print the derefence value not address  becuase all 3 register vraibles are pointers 
 
-return 0 ; 
+
+
+// valid read: pin 1 is INPUT
+    int val = gpio_read(direction_reg, input_reg, 1);
+    printf("pin 1 read = %d\n", val);
+
+    // invalid read: pin 0 is OUTPUT, not INPUT
+    int bad_val = gpio_read(direction_reg, input_reg, 0);
+    printf("pin 0 read = %d\n", bad_val);
+
+    return 0;
+
 }
 
 
