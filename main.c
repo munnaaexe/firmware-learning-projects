@@ -6,11 +6,12 @@
     #define RESET_BIT             (1 << 1)
     #define INTERRUPT_ENABLE_BIT  (1 << 2)
     #define POWER_ENABLE_BIT      (1 << 3)
-    #define SOME_THING  (1 << 4 )
+    #define SOME_THING            (1 << 4 )
     
 
 void set_bit (uint32_t *reg , uint32_t bit)      // void becoz no return direct modify // pointer becuase direct modify needed 
 {
+
     *reg |= (1 << bit );
 
 }
@@ -20,6 +21,18 @@ void clear_bit(uint32_t *reg, uint32_t bit)
     *reg &= ~(1 << bit);
 }
 
+void read_bit(uint32_t reg , uint32_t bit )
+{
+    if( reg & (1 << bit)) 
+    {
+        printf("set ") ;
+    }
+    else 
+    {
+        printf("not set ") ;
+    }
+
+}
 
 
 int main()
@@ -76,6 +89,12 @@ else
 
     clear_bit(&CONTROL_REG , 0 );
     printf("clear  bit0 using function again CONTROL_REG = 0x%08X\n", CONTROL_REG);
+    
+
+
+    read_bit(CONTROL_REG , 0); 
+
+
 
     return 0;
 
