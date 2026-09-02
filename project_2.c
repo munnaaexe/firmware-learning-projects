@@ -11,6 +11,34 @@ uint32_t fake_hardware_registers[3]  ;
 
 // first set the bit 0 of the register direction next make it out 
 
+//func that cheks direction and later checks if output 
+void gpio_write(volatile uint32_t *direction_reg,
+                 volatile uint32_t *output_reg,
+                 int pin,
+                 int value)
+{
+
+//just check the direction re 
+
+
+int is_output = (*direction_reg >> pin ) & 1 ;    /// use pin to check ,, 
+
+if (!is_output)
+{
+  printf(" this direction_reg is not set\n ");
+  return ;
+}
+
+// if user reuqeseted for pin =3 and value =1 it means he neee pin 3 to be high , we use this operation & up set the bit after checking the direction register thats it  
+if (value) {
+        *output_reg |= (1 << pin);      // set the bit
+    } else {
+        *output_reg &= ~(1 << pin);     // clear the bit
+    }
+
+
+}
+
 int main()
 {
 volatile uint32_t *direction_reg = &fake_hardware_registers[0];
@@ -35,7 +63,14 @@ printf("the sattus after setting thereg =  0x%08X\n ", *output_reg );
 
 int pin1_status = (*input_reg >>1 ) &1 ;          // shift right the so bit come at end ppston and do & opertaion 
 
-printf("%d",pin1_status);
+printf("%d\n",pin1_status);
+
+
+
+
+gpio_write( direction_reg, output_reg, 0, 1) ;
+printf("output register status after direction check 0x%08X\n",*output_reg) ; 
+
 return 0 ; 
 }
 
