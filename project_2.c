@@ -71,6 +71,27 @@ else
 }
 
 
+void gpio_toggle ( volatile uint32_t *direction_reg , volatile uint32_t *output_reg  , int pin )
+{
+  
+  // check the direction reg 
+
+  int is_output = (*direction_reg >> pin ) & 1 ;    /// use pin to check ,, 
+
+if (!is_output)
+{
+  printf(" this direction_reg is not set\n ");
+
+}
+else 
+{
+*output_reg ^= (1 << pin); 
+}
+
+
+
+}
+
 int main()
 {
 volatile uint32_t *direction_reg = &fake_hardware_registers[0];
@@ -112,6 +133,21 @@ printf("output register status after direction check 0x%08X\n",*output_reg) ;   
     // invalid read: pin 0 is OUTPUT, not INPUT
     int bad_val = gpio_read(direction_reg, input_reg, 0);
     printf("pin 0 read = %d\n", bad_val);
+
+
+
+
+
+
+
+
+
+    gpio_toggle(direction_reg, output_reg, 0) ; 
+printf( "the output_reg sttaus after toggle 0x%08X" ,*output_reg  ); 
+
+
+
+
 
     return 0;
 
