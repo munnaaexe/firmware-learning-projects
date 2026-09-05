@@ -1,16 +1,23 @@
 #include<stdio.h>
 #include<stdint.h>
 
-
+#define MODE_MASK (0x3 << 4 ) 
 // now we need three default for 3 registers so we do declaration 
 
 
 uint32_t fake_hardware_registers[3]  ; 
 
 
+//   using struct instead of arrayS+ pointers for the regitsers declarition ; 
+typedef struct
+{
+    volatile uint32_t DIRECTION;
+    volatile uint32_t INPUT;
+    volatile uint32_t OUTPUT;
 
+} GPIO_struct_datatype;
 
-
+GPIO_struct_datatype fake_gpio = {0}; // intialised the varaibles as zero first 
 
 
 
@@ -92,6 +99,34 @@ else
 
 }
 
+
+
+
+
+
+
+
+// mode bits usage now : upto now we checked for only 1 bit : 
+
+int gpio_get_mode( volatile uint32_t *direction_reg)
+
+{
+
+  //wrong precedence ex: int mode = *CONTROL_REG & (MODE_MASK >> 4) ;
+
+  int mode  = (*direction_reg & MODE_MASK ) >> 4 ;
+  return mode ;  
+
+}
+
+void gpio_set_mode(volatile uint32_t *direction_reg,  int new_mode )
+{
+ // for writing we have to clear the two bits 4,5 first next we have to write it 
+
+ *direction_reg =  (*direction_reg &  ~MODE_MASK)  |  (new_mode << 4) ; // using this we can clear the bits  | setting the nw mode to the register 
+
+}
+
 int main()
 {
 volatile uint32_t *direction_reg = &fake_hardware_registers[0];
@@ -126,6 +161,10 @@ printf("output register status after direction check 0x%08X\n",*output_reg) ;   
 
 
 
+
+
+
+
 // valid read: pin 1 is INPUT
     int val = gpio_read(direction_reg, input_reg, 1);
     printf("pin 1 read = %d\n", val);
@@ -147,11 +186,62 @@ printf( "the output_reg sttaus after toggle 0x%08X" ,*output_reg  );
 
 
 
+printf(" \n dreiction register sttaus currntly 0x%08X" , *direction_reg); 
+
+
+
+
+// setting the register_mode 
+
+int new_mode = 3 ;
+gpio_set_mode(direction_reg,new_mode );
+
+// reaing the register mode 
+
+int dir_reg_status = gpio_get_mode(direction_reg); 
+printf("\n the new status of direction_reg for 4,5 bits   0x%08X",dir_reg_status); 
+
+printf(" \n dreiction register after mode  sttaus currntly 0x%08X" , *direction_reg);
+
+
+
+
+// here , we see the struct accesss 
+
+
+// Set pin 0 as OUTPUT
+    fake_gpio.DIRECTION |= (1U << 0);
+    printf("DIRECTION after setting pin 0: 0x%08X\n",
+           fake_gpio.DIRECTION);
+
+    // Set OUTPUT pin 0 HIGH
+    fake_gpio.OUTPUT |= (1U << 0);
+    printf("OUTPUT after setting pin 0:    0x%08X\n",
+           fake_gpio.OUTPUT);
+
+    // Set pin 1 as INPUT
+    fake_gpio.DIRECTION &= ~(1U << 1);
+    printf("DIRECTION after clearing pin 1: 0x%08X\n",
+           fake_gpio.DIRECTION);
+
+     // Simulate hardware making INPUT pin 1 HIGH
+    fake_gpio.INPUT |= (1U << 1);
+    printf("INPUT after hardware sets pin 1: 0x%08X\n",
+           fake_gpio.INPUT);
+
+    // Read pin 1
+    int pin1_status_new = (fake_gpio.INPUT >> 1) & 1U;
+
+    printf("Pin 1 input status: %d\n", pin1_status_new);
 
 
     return 0;
 
+
+
 }
+
+
 
 
 
