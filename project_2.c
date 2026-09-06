@@ -20,7 +20,7 @@ typedef struct
 GPIO_struct_datatype fake_gpio = {0}; // intialised the varaibles as zero first 
 
 
-
+/*
 
 // first set the bit 0 of the register direction next make it out 
 
@@ -127,8 +127,121 @@ void gpio_set_mode(volatile uint32_t *direction_reg,  int new_mode )
 
 }
 
+
+*/
+
+// new functions for  struct varavibles , inestead od seoarte pointers like *DIRECTION_reg , *INPUT_reg ,etc... 
+
+
+
+void write_struct( GPIO_struct_datatype *gpio_ptr , int pin,                  
+                 int value )           // only for struct you can skip volatile in function argumensts if decleared in struct , not same for previous arrays  pointers 
+                 
+//void gpio_write(volatile uint32_t *direction_reg,volatile uint32_t *output_reg, int pin,int value)        > if u see here , here we used separted pointers for both registers : thta is not need in struct 
+
+// checking direction register first , is it in input / output state   
+
+{
+int is_output_ = (gpio_ptr -> DIRECTION  >> pin ) & 1 ;  
+
+
+if (!is_output_)
+{
+printf("the direction register is not the output mode " ); 
+
+gpio_ptr -> DIRECTION |= (1 << pin); 
+
+printf("as it is not in output mode , i have added it to that mode \n ");
+}
+
+
+if(value)
+{
+  // if value is poistive intereger set the bit 
+
+gpio_ptr -> OUTPUT  |= (1 << pin);       //set the bit 
+
+}
+else {
+        gpio_ptr -> OUTPUT  &= ~(1 << pin);     // clear the bit
+    }
+
+
+}
+
+
+
+// read fun()
+int read_struct( GPIO_struct_datatype *gpio_ptr , int pin  )
+
+{
+
+// check direction register 
+
+
+
+int is_output_ = ( gpio_ptr -> DIRECTION  >> pin  ) & 1U ; 
+// 
+
+if(!is_output_) 
+{
+  printf("the direction register is in the input mode " ); 
+}
+
+else 
+
+{
+
+gpio_ptr -> DIRECTION |= (0 << pin); 
+
+printf("as it is not in input mode , i have added it to that mode \n ");
+
+}
+
+
+
+
+int pin_status = (gpio_ptr -> INPUT >> pin  ) & 1 ; 
+
+if( !pin_status )
+{
+return pin_status; 
+}
+else
+ {
+return -1 ; 
+}
+
+
+
+
+}
+
+
+
+
+//3. toggle is also same > 
+
+
+void toggle_struct (  GPIO_struct_datatype *gpio_ptr , int pin , int value  ); 
+
+
+
+// 4, NOW mode bits usage , multiple bits 
+
+int gpio_get_mode(GPIO_struct_datatype *gpio);
+
+void gpio_set_mode(GPIO_struct_datatype *gpio, int new_mode);
+
+
+
+
+// main function 
 int main()
 {
+  
+
+/*
 volatile uint32_t *direction_reg = &fake_hardware_registers[0];
 volatile  uint32_t *input_reg = &fake_hardware_registers[1];
 volatile uint32_t *output_reg = &fake_hardware_registers[2] ; 
@@ -150,7 +263,6 @@ printf("the sattus after setting thereg =  0x%08X\n ", *output_reg );
 
 
 int pin1_status = (*input_reg >>1 ) &1 ;          // shift right the so bit come at end ppston and do & opertaion 
-
 printf("%d\n",pin1_status);
 
 
@@ -235,7 +347,37 @@ printf(" \n dreiction register after mode  sttaus currntly 0x%08X" , *direction_
     printf("Pin 1 input status: %d\n", pin1_status_new);
 
 
-    return 0;
+*/
+
+
+GPIO_struct_datatype *gpio_ptr = &fake_gpio ; 
+printf("the sattus currently of direction =  0x%08X\n ", gpio_ptr -> DIRECTION  ); 
+
+write_struct( gpio_ptr , 0, 1 );
+printf("the sattus now of direction =  0x%08X\n ", gpio_ptr -> DIRECTION  ); 
+
+printf("the sattus now of direction =  0x%08X\n ", gpio_ptr -> OUTPUT  );
+
+
+
+
+
+
+int input_bit1_status =  read_struct( gpio_ptr , 1 );
+printf("the sattus now of direction =  0x%08X\n ", gpio_ptr -> DIRECTION  ); 
+
+printf("the sattus now of direction =  0x%08X\n ", gpio_ptr -> INPUT );
+
+printf("the sattus now of input_bit_1 is = %d ",input_bit1_status );
+
+
+
+
+
+
+
+
+  return 0;
 
 
 
